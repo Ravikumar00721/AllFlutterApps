@@ -4,7 +4,7 @@ class UserModel {
   String? mobileno;
   String? name;
 
-  UserModel({this.uid,this.email,this.mobileno,this.name});
+  UserModel({required this.uid, this.email, this.mobileno, this.name});
 
   UserModel.fromMap(Map<String, dynamic> map) {
     uid = map["uid"];

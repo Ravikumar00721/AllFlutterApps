@@ -14,121 +14,173 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
-  // Check for empty fields before attempting login
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
   void checkValues() {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
 
-    if (email == "" || password == "") {
-      print("Please fill in all fields");
+    if (email.isEmpty || password.isEmpty) {
+      showSnackBar("Please fill in all fields");
     } else {
       signIn(email, password);
     }
   }
 
-  // Sign in function with Firebase Auth and navigation upon success
   void signIn(String email, String password) async {
     try {
-      // Sign in user with email and password
+      // Attempt to sign in with email and password
       UserCredential credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
 
       if (credential.user != null) {
         String uid = credential.user!.uid;
 
-        // Fetch user data from Firestore
-        DocumentSnapshot userData =
-            await FirebaseFirestore.instance.collection("users").doc(uid).get();
+        // Print UID to the terminal for debugging
+        print("User UID: $uid");
 
-        UserModel userModel =
-            UserModel.fromMap(userData.data() as Map<String, dynamic>);
+        try {
+          // Attempt to fetch user data from Firestore
+          DocumentSnapshot userData = await FirebaseFirestore.instance
+              .collection("users")
+              .doc(uid)
+              .get();
 
-        print("Login Successful");
+          // Check if document exists
+          if (userData.exists) {
+            // Check if the data is not null and valid
+            if (userData.data() != null) {
+              // Convert the Firestore document to your model
+              UserModel userModel =
+                  UserModel.fromMap(userData.data() as Map<String, dynamic>);
 
-        // Navigate to HomeScreen on successful login
-        Navigator.popUntil(context, (route) => route.isFirst);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => HomeScreen(
+              print("Login Successful");
+              print("User UID: $uid");
+
+              // Navigate to HomeScreen with the retrieved user data
+              Navigator.popUntil(context, (route) => route.isFirst);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomeScreen(
                     userModel: userModel,
                     firebaseuser: credential.user!,
-                  )),
-        );
+                  ),
+                ),
+              );
+            } else {
+              // Handle case where the document exists but data is null
+              showSnackBar("User data is empty. Please try again.");
+            }
+          } else {
+            // Handle case where the document does not exist
+            showSnackBar("User data not found in Firestore. Please try again.");
+          }
+        } catch (e) {
+          // Handle errors specific to Firestore data retrieval
+          print("Error retrieving user data: $e");
+          showSnackBar("An error occurred while fetching user data.");
+        }
       }
     } on FirebaseAuthException catch (e) {
-      // Handle specific error codes for better error messages
+      // Handle Firebase authentication errors
       if (e.code == 'user-not-found') {
-        print("No user found for that email.");
+        showSnackBar("No user found for that email.");
       } else if (e.code == 'wrong-password') {
-        print("Incorrect password.");
+        showSnackBar("Incorrect password.");
       } else {
-        print("Error: ${e.message}");
+        showSnackBar("Authentication error: ${e.message}");
       }
+    } catch (e) {
+      // Handle any other exceptions
+      print("Unexpected error: $e");
+      showSnackBar("An unexpected error occurred. Please try again.");
     }
+  }
+
+  void showSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-          child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 30),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Text(
-                  "Chat App",
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  controller: emailController,
-                  decoration: InputDecoration(labelText: "Email Address"),
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  controller: passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(labelText: "Password"),
-                ),
-                SizedBox(height: 20),
-                CupertinoButton(
-                    color: Color.fromARGB(255, 5, 175, 187),
-                    child: Text("Log In"),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30.0),
+          child: Center(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Text(
+                    "Chat App",
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(
+                      labelText: "Email Address",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: passwordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: "Password",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  CupertinoButton(
+                    color: const Color.fromARGB(255, 5, 175, 187),
+                    child: const Text("Log In"),
                     onPressed: () {
                       checkValues();
-                    })
-              ],
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      )),
-      bottomNavigationBar: Container(
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               "Don't Have an Account?",
               style: TextStyle(fontSize: 16),
             ),
             CupertinoButton(
-                child: Text(
-                  "Sign Up",
-                  style: TextStyle(fontSize: 16),
-                ),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return SignUpScreen();
-                  }));
-                })
+              child: const Text(
+                "Sign Up",
+                style: TextStyle(fontSize: 16),
+              ),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const SignUpScreen()));
+              },
+            ),
           ],
         ),
       ),

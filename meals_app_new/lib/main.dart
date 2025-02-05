@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
-
-import 'screen/categories.dart';
+import 'package:meals_app_new/screen/categories.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-final ThemeData mytheme = ThemeData(
+final ThemeData myTheme = ThemeData(
+  brightness: Brightness.dark, // Set the brightness to dark
   primarySwatch: Colors.blue,
-  brightness: Brightness.light,
+  colorScheme: ColorScheme.fromSwatch(
+    primarySwatch: Colors.blue,
+    brightness: Brightness.dark, // Match the brightness
+    backgroundColor: Colors.black,
+    accentColor: Colors.amber, // Set the secondary color
+  ),
+  scaffoldBackgroundColor:
+      Colors.black, // Ensure the scaffold background is black
 );
 
 class MyApp extends StatelessWidget {
@@ -18,8 +25,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: mytheme,
-      home: const Categories(),
+      theme: myTheme,
+      home: const CategoriesScreen(),
     );
   }
 }

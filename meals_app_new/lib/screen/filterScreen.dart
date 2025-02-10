@@ -1,21 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-enum Filter { glutenFree, lactoseFree, vegeterianFree, veganFree }
+import '../provider/filter_provider.dart';
 
-class FiltersScreen extends StatefulWidget {
+class FiltersScreen extends ConsumerStatefulWidget {
   const FiltersScreen({super.key});
 
   @override
-  State<FiltersScreen> createState() {
+  ConsumerState<FiltersScreen> createState() {
     return _FilterScreenState();
   }
 }
 
-class _FilterScreenState extends State<FiltersScreen> {
+class _FilterScreenState extends ConsumerState<FiltersScreen> {
   var _glutenFreeFilterSet = false;
   var _lactoseFreeFilterSet = false;
   var _vegeterianFreeFilterSet = false;
   var _veganFreeFilterSet = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final activeFilters = ref.read(filtersProvider);
+    _glutenFreeFilterSet = activeFilters[Filter.glutenFree]!;
+    _lactoseFreeFilterSet = activeFilters[Filter.lactoseFree]!;
+    _veganFreeFilterSet = activeFilters[Filter.veganFree]!;
+    _vegeterianFreeFilterSet = activeFilters[Filter.vegetarianFree]!;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,16 +41,18 @@ class _FilterScreenState extends State<FiltersScreen> {
       //         MaterialPageRoute(builder: (ctx) => const TabsScreen()));
       //   }
       // }),
-      body: PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (bool didpop, dynamic result) {
-          if (didpop) return;
-          Navigator.of(context).pop({
+      body: WillPopScope(
+        onWillPop: () async {
+          final updatedFilters = {
             Filter.glutenFree: _glutenFreeFilterSet,
             Filter.lactoseFree: _lactoseFreeFilterSet,
-            Filter.vegeterianFree: _vegeterianFreeFilterSet,
+            Filter.vegetarianFree: _vegeterianFreeFilterSet,
             Filter.veganFree: _veganFreeFilterSet,
-          });
+          };
+
+          ref.read(filtersProvider.notifier).setFilters(updatedFilters);
+          Navigator.of(context).pop(updatedFilters); // <-- Return the filters
+          return false; // Prevent default pop behavior, since we handle it
         },
         child: Column(
           children: [

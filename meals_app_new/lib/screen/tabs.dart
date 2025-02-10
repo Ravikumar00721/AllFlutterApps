@@ -34,36 +34,12 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
     });
   }
 
-  // final List<Meal> _favoriteMeal = [];
-
-  // void _toggleMealFavoriteSatus(Meal meal) {
-  //   final isexisting = _favoriteMeal.contains(meal);
-  //
-  //   if (isexisting) {
-  //     setState(() {
-  //       _favoriteMeal.remove(meal);
-  //     });
-  //     showMesaage("Man Bhar Gya!!!!!");
-  //   } else {
-  //     setState(() {
-  //       _favoriteMeal.add(meal);
-  //     });
-  //     showMesaage("Added to Favorite");
-  //   }
-  // }
-
   void _setScreen(String identifier) async {
     Navigator.of(context).pop();
     if (identifier == 'Filters') {
-      final result = await Navigator.of(context).push<Map<Filter, bool>>(
+      await Navigator.of(context).push<Map<Filter, bool>>(
         MaterialPageRoute(builder: (ctx) => const FiltersScreen()),
       );
-
-      if (result != null) {
-        print(result); // This should now print the selected filters correctly
-      } else {
-        print("No filters returned.");
-      }
     }
   }
 
@@ -71,6 +47,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
   Widget build(BuildContext context) {
     final meals = ref.watch(mealsProvider);
     final activeFilters = ref.watch(filtersProvider);
+
     final availableMeals = meals.where((meal) {
       if (activeFilters[Filter.glutenFree]! && !meal.isGlutenFree) {
         return false;
@@ -87,18 +64,29 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
       return true;
     }).toList();
 
-    Widget activepage = CategoriesScreen(
-      // onToggleFavorite: _toggleMealFavoriteSatus,
+    // Debugging print for available meals based on filters
+    print('Filtered Meals:');
+    availableMeals.forEach((meal) {
+      print('Category: ${meal.categories}, Title: ${meal.title}');
+    });
+
+    Widget activePage = CategoriesScreen(
       availableMeals: availableMeals,
     );
     var activePageTitle = 'Categories';
 
     if (_selectedPageIndex == 1) {
-      final favoritemeal = ref.watch(favoritesMealsProvider);
-      activepage = MealScreen(
+      final favoriteMeals = ref.watch(favoritesMealsProvider);
+
+      // Debugging print for favorite meals
+      print('Favorite Meals:');
+      favoriteMeals.forEach((meal) {
+        print('Category: ${meal.categories}, Title: ${meal.title}');
+      });
+
+      activePage = MealScreen(
         title: null,
-        meals: favoritemeal,
-        // onToggleFavorite: _toggleMealFavoriteSatus,
+        meals: favoriteMeals,
       );
       activePageTitle = 'Your Favorites';
     }
@@ -110,7 +98,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
       drawer: MainDrawer(
         onSelectDrawer: _setScreen,
       ),
-      body: activepage,
+      body: activePage,
       bottomNavigationBar: BottomNavigationBar(
         onTap: _selectPage,
         currentIndex: _selectedPageIndex,

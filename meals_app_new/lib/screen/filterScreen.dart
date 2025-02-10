@@ -34,13 +34,6 @@ class _FilterScreenState extends ConsumerState<FiltersScreen> {
       appBar: AppBar(
         title: Text("Filters"),
       ),
-      // drawer: MainDrawer(onSelectDrawer: (identifier) {
-      //   Navigator.of(context).pop();
-      //   if (identifier == "Meals") {
-      //     Navigator.of(context).pushReplacement(
-      //         MaterialPageRoute(builder: (ctx) => const TabsScreen()));
-      //   }
-      // }),
       body: WillPopScope(
         onWillPop: () async {
           final updatedFilters = {

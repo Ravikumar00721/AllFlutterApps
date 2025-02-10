@@ -1,20 +1,59 @@
-import 'dart:ui';
-
+import 'package:flutter/material.dart';
 import 'package:meals_app_new/model/Category_Model.dart';
 
 import '../model/meal.dart';
 
 final List<CatModel> foodCategories = [
-  const CatModel(id: 'c1', title: 'Fruits', color: Color(0xFFFFA726)),
-  const CatModel(id: 'c2', title: 'Vegetables', color: Color(0xFF66BB6A)),
-  const CatModel(id: 'c3', title: 'Dairy', color: Color(0xFF42A5F5)),
-  const CatModel(id: 'c4', title: 'Grains', color: Color(0xFFFFD54F)),
-  const CatModel(id: 'c5', title: 'Protein', color: Color(0xFF8D6E63)),
-  const CatModel(id: 'c6', title: 'Snacks', color: Color(0xFFFF7043)),
-  const CatModel(id: 'c7', title: 'Beverages', color: Color(0xFFAB47BC)),
-  const CatModel(id: 'c8', title: 'Seafood', color: Color(0xFF29B6F6)),
-  const CatModel(id: 'c9', title: 'Desserts', color: Color(0xFFE91E63)),
-  const CatModel(id: 'c10', title: 'Fast Food', color: Color(0xFFBDBDBD)),
+  CatModel(
+    id: 'c1',
+    title: 'Italian',
+    color: Colors.purple,
+  ),
+  CatModel(
+    id: 'c2',
+    title: 'Quick & Easy',
+    color: Colors.red,
+  ),
+  CatModel(
+    id: 'c3',
+    title: 'Hamburgers',
+    color: Colors.orange,
+  ),
+  CatModel(
+    id: 'c4',
+    title: 'German',
+    color: Colors.amber,
+  ),
+  CatModel(
+    id: 'c5',
+    title: 'Light & Lovely',
+    color: Colors.blue,
+  ),
+  CatModel(
+    id: 'c6',
+    title: 'Exotic',
+    color: Colors.green,
+  ),
+  CatModel(
+    id: 'c7',
+    title: 'Breakfast',
+    color: Colors.lightBlue,
+  ),
+  CatModel(
+    id: 'c8',
+    title: 'Asian',
+    color: Colors.lightGreen,
+  ),
+  CatModel(
+    id: 'c9',
+    title: 'French',
+    color: Colors.pink,
+  ),
+  CatModel(
+    id: 'c10',
+    title: 'Summer',
+    color: Colors.teal,
+  ),
 ];
 
 const dummyMeals = [

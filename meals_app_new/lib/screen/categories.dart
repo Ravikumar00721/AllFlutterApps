@@ -7,24 +7,23 @@ import 'package:meals_app_new/widget/category_grid_item.dart';
 import '../model/meal.dart';
 
 class CategoriesScreen extends StatelessWidget {
-  const CategoriesScreen(
-      {super.key,
-      // required this.onToggleFavorite,
-      required this.availableMeals});
-  // final void Function(Meal meal) onToggleFavorite;
+  const CategoriesScreen({super.key, required this.availableMeals});
 
   final List<Meal> availableMeals;
 
   void _selectcategory(BuildContext context, CatModel category) {
-    final filtered_meals = dummyMeals
+    // Filter available meals based on the selected category
+    final filteredMeals = availableMeals
         .where((meal) => meal.categories.contains(category.id))
         .toList();
+
+    // Navigate to MealScreen with the filtered meals
     Navigator.of(context).push(MaterialPageRoute(
-        builder: (ctx) => MealScreen(
-              title: category.title,
-              meals: filtered_meals,
-              // onToggleFavorite: onToggleFavorite,
-            )));
+      builder: (ctx) => MealScreen(
+        title: category.title,
+        meals: filteredMeals,
+      ),
+    ));
   }
 
   @override
@@ -32,10 +31,11 @@ class CategoriesScreen extends StatelessWidget {
     return GridView(
       padding: const EdgeInsets.all(24),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 3 / 2,
-          crossAxisSpacing: 20,
-          mainAxisSpacing: 20),
+        crossAxisCount: 2,
+        childAspectRatio: 3 / 2,
+        crossAxisSpacing: 20,
+        mainAxisSpacing: 20,
+      ),
       children: [
         for (final category in foodCategories)
           CategoryGridItem(
@@ -43,7 +43,7 @@ class CategoriesScreen extends StatelessWidget {
             onSelectScreen: () {
               _selectcategory(context, category);
             },
-          )
+          ),
       ],
     );
   }

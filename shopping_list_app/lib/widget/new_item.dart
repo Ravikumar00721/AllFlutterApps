@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:shopping_list_app/data/categories.dart';
 import 'package:shopping_list_app/model/categories_model.dart';
-import 'package:shopping_list_app/model/grocery_model.dart';
+
+import '../model/grocery_model.dart';
 
 class NewItem extends StatefulWidget {
   const NewItem({super.key});
@@ -17,12 +21,34 @@ class _NewItemState extends State<NewItem> {
   late var _enteredName = '';
   late var _enteredQ = 1;
   late var _selectedCategories = categories[Categories.vegetables]!;
+  var isSending = false;
 
-  void saveItem() {
+  void saveItem() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+      setState(() {
+        isSending = true;
+      });
+      final url = Uri.https(
+          'flutter-sl-34b48-default-rtdb.firebaseio.com', 'Shopping-List.json');
+      final response = await http.post(url,
+          headers: {'content-type': 'application/json'},
+          body: json.encode({
+            'name': _enteredName,
+            'quantity': _enteredQ,
+            'category': _selectedCategories.title
+          }));
+      print(response.body);
+      print(response.statusCode);
+
+      final Map<String, dynamic> resData = json.decode(response.body);
+
+      if (!context.mounted) {
+        return;
+      }
+
       Navigator.of(context).pop(GroceryItem(
-          id: DateTime.timestamp().toString(),
+          id: resData['name'],
           name: _enteredName,
           quantity: _enteredQ,
           category: _selectedCategories));
@@ -124,12 +150,21 @@ class _NewItemState extends State<NewItem> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                      onPressed: () {
-                        _formKey.currentState!.reset();
-                      },
+                      onPressed: isSending
+                          ? null
+                          : () {
+                              _formKey.currentState!.reset();
+                            },
                       child: const Text("Reset")),
                   ElevatedButton(
-                      onPressed: saveItem, child: const Text("Add Item"))
+                      onPressed: isSending ? null : saveItem,
+                      child: isSending
+                          ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(),
+                            )
+                          : const Text("Add Item"))
                 ],
               )
             ],
